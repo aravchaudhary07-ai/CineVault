@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Cinephile Directory</title>
+    <!--                                                    css parrt                                           -->
+    <style>
+        body{
+
+
+            font-family: 'Inter', sans-serif;
+            background-color: #111827;
+            color: #f3f4f6;
+        }
+
+        ::-webkit-scrollbar { width:8px;}
+        ::-webkit-scrollbar-track{background: #2a2a2a;}
+        ::-webkit-scrollbar-thumb{background: #4a4a4a; border-radius: 4px;}
+        ::-webkit-scrollbar-thumb:hover{background: #6a6a6a;}
+
+        .app-container{
+            min-height: 100vh;
+            display: flex;
+            position: relative;
+        }
+
+        .sidebar {
+            width: 16rem;
+            min-height: 100vh;
+            background-color: #1f2937;
+            padding: 1.5rem;
+            box-shadow: 5px 0 15px rgba(0,0,0,0.4);
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 30;
+            display: flex;
+            flex-direction:column;
+        }
+
+        .sidebar-title {
+            font-size:2.25rem;
+            font-weight:800;
+            margin-bottom:2rem;
+            color:#ef4444;
+            letter-spacing: 0.05em;
+            cursor:pointer;
+        }
+
+        .sidebar-nav{
+            display:flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .sidebar-link{
+            display:block;
+            padding:0.75rem;
+            border-radius:0.5rem;
+            font-weight: 500;
+            color:#d1d1db;
+            transition: background-color 0.2s, color 0.2s, transform 0.2s;
+        }
+
+        .sidebar-link:hover{
+            background-color: rgba(185,28,28,0.15);
+            color: #fca5a5;
+            transform: translateX(5px);
+        }
+
+        .poater-banner{
+            position:relative;
+            width:100%;
+            height:10rem;
+            background-color:#0b1016;
+            box-shadow:none;
+            padding:1.5rem;
+            display:flex;
+            overflow-x:scroll;
+            overflow-y:hidden;
+            gap:1rem;
+            align-items:center;
+            perspective:1200px;
+        }
+
+        .poster-item{
+            flex-shrink:0;
+            width:6rem;
+            height:9rem;
+            border-radius:0.5rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.4);
+            cursor:pointer;
+            transition: transform 0.2s;
+            border:2px solid #374151;
+            transform-style:preserve-3d;
+            transition: transform 0.4s ease-out;
+            transform:scale(1);
+        }
+
+        .poster-item:hover{
+            transform:rotateY(0deg) scale(1.15) translateZ(100px);
+            border-color:#ef4444;
+            z-index:10;
+        }
+
+        .pooster-item:not(:hover){
+            transform:rotateY(5deg) scale(0.95);
+            opacity:0.8;
+        }
+
+        .poster-item:hover +*{
+            transform:rotateY(40deg) scale(1.05) translateX(-50PX) translateZ(70px);
+            opacity:0.9;
+        }
+
+        .poster-item:hover +*+*{
+            transform:rotateY(15deg) scale(1.05) translateX(-10PX) translateZ(30px);
+            opacity:0.9;
+        }
+
+        .poster-item:has(+*:hover){
+            transform:rotateY(-40deg) scale(1.05) translateX(50PX) translateZ(70px);
+            opacity: 0.9;
+        }
+
+        .pooster-item:has(+*+*:hover){
+            transform:rotateY(-15deg) scale(1.05) translateX(10PX) translateZ(30px);
+            opacity:0.9;
+        }
+
+        .poster-item img{
+            width:100%;
+            height:100%;
+            object-fit:cover;
+            border-radius:0.5rem;
+        }
+
+        #content-area{
+            transition:opacity 0.3s ease-in-out;
+            padding:2.5rem;
+            flex-grow:1;
+            min-height:100vh;
+            width:100%;
+            overflow-y:auto;
+        }
+
+        .search-container{
+            margin-bottom:2rem;
+            display:flex;
+            gap:1rem;
+        }
+
+        .seach-input{
+            flex-grow:1;
+            padding:0.75rem 1rem;
+            background-color:#1f2937;
+            border:2px solid #374151;
+            border-radius:0.5rem;
+            color:#f3f4f6;
+            font-size:1rem;
+            transition:border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .seach-input:focus{
+            border-color:#ef4444;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(239,68,68,0.3);
+        }
+
+        .list-grid{
+            display:grid;
+            grid-template-columns: 1fr;
+            gap:1.5rem;
+        }
+
+        .detail-card{
+            background-color:#1f2937;
+            padding:2rem;
+            border-radius:0.75rem;
+            box-shadow:0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+            border:1px solid rgba(220,38,38,0.3);
+        }
+
+        .list-card{
+            padding:1.25rem;
+            background-color:#1f2937;
+            border-radius:0.5rem;
+            box-shadow:0 4px 6px -1px rgba(0,0,0,0.1),0 2px 4px -2px rgba(0,0,0,0.06);
+            cursor:pointer;
+            transition:all 0.3s ease;
+            border:1px solid #374151;
+        }
+
+        .list-card:hover{
+            background-color:#373151;
+            transform:scale(1.02);
+            border-color:#dc2626;
+        }
+
+        .welcome-box{
+            min-height:100%;
+            display:flex;
+            flex-direction:column;
+            justify-content:center;
+            align-items:center;
+            text-align:center;
+            padding:5rem 0;
+            background-color:#1f2937;
+            border-radius:0.75rem;
+            box-shadow:0 10px 20px rgba(239,68,68,0.2);
+            border:1px solid rgba(239,68,68,0.2);
+        }
+
+        .btn-primary{
+            padding:0.75rem 1.5rem;
+            background-color:#dc2626;
+            color:white;
+            font-weight:600;
+            border:none;
+            border-radius:0.5rem;
+            cursor:pointer;
+            transition:background-color 0.2s, transform 0.2s;
+        }
+
+        .btn-primary:hover{
+            background-color:#b91c1c;
+            transform: scale(1.05);
+        }
+
+        .btn-secondary-back{
+            margin-top:2rem;
+            padding:0.5rem 1rem;
+            background-color:#374151;
+            color:white;
+            border:none;
+            border-radius:0.5rem;
+            font-size:0.875rem;
+            transition:background-color 0.2s;
+        }
+
+        .btn-secondary-back:hover{
+            background-color:#4b5563;
+        }
+
+        .poster-upload-card{
+            display:flex;
+            flex-direction:column;
+            gap:1rem;
+            align-items:center;
+            text-align:center;
+            padding:1rem;
+            background-color:#2a2a2a;
+            border-radius:0.5rem;
+        }
+        /*                          this is for mobile like view                    */
+        @media (max-width:767px){
+            .sidebar{
+                width:100%;
+                height:auto;
+                position:relative;
+                box-shadow:0 5px 10px rgba(0,0,0,0.4);
+            }
+            .app-container{
+                flex-direction:column;
+                min-height:auto;
+            }
+            #content-area{
+                padding:1.5rem;
+                margin-left:0;
+                margin-top:0;
+                width:100%;
+            }
+        }
+        /*                              this is for tablat like view                            */
+        @media(min-width:768px){
+            .list-grid{
+                grid-template-columns: repeat(2,1fr);
+            }
+            .sidebar{
+                display:flex;
+            }
+            .poster-banner{
+                position:fixed;
+                top:o;
+                left:16rem;
+                width:calc(100%-16rem);
+                height:10rem;
+                z-index:20;
+                box-shadow:0 5px 10px rgba(0,0,0,0.5);
+                padding-left:1.5rem;
+                padding-right:1.5rem;
+                justify-content:flex-start;
+                perspective:1500px;
+            }
+            #content-area{
+                margin-left:17.5rem;
+                margin-top:12rem;
+                width:calc(100%-17.5rem);
+            }
+        }
+        /*                              this is for laptop like view                            */
+        @media(min-width:1024px){
+            .list-grid{
+                grid-template-columns: repeat(3,1fr);
+            }
+        }
+        
+    </style>
+</head>
+<body>
+
+    <!---->
+    <div class="app-container">
+
+        <!--sidebar-->
+        <div id="sidebar" class="sidebar">
+            <h2 class="sidebar-title" onclick="navigateTo('mian',null)">cinevault</h2>
+            <nav class="sidebar-nav">
+                <a href="#" class="sidebar-link" data-type="movies">All Movies</a>
+                <a href="#" class="sidebar-link" data-type="directors">All Directors</a>
+                <a href="#" class="sidebar-link" data-type="actors">All Actors</a>
+                <a href="#" class="sidebar-link" data-type="series">All Series</a>
+                <!-- NEW LINK -->
+                <a href="#" class="sidebar-link" onclick="navigateTo('poster_management')" style="color: #fca5a5; font-weight: 600;">Manage Posters</a>
+                <a href="#" class="sidebar-link" onclick="navigateTo('main', null)">Home</a>
+            </nav>
+        </div>
+
+        <!--poster banner-->
+        <header id="poster-banner" class="poster-banner"></header>
+
+        <!--main cotent area-->
+        <main id="content-area">
+            <div id="content-innjector"></div>
+        </main>
+    </div>
+
+    <script>
+        //data
+        const cineData={
+            movies:[
+                {id:'m1',title:'Pulp Friction',directorId:'d1',actors:['a1','a2','a3'],year:1994,streaming:'Max,SkysShowtime',summary:'The lives of two mob hitmen, a boxer, a gangster and his wife, and a pair of diner bandits intertwine in four tales of violence and redemption.'},
+                {id:'m2',title:'Incption',directorId:'d2',actors:['a4','a5'],year:2010,streaming:'Netflix,Prime Video',summary:'A thief who steals corporate secret through the use of dream-sharing technology is given the inverse task of planting an idea into the mind of a C.E.O.'},
+                {id:'m3',title:'Eternal Sunshine of the Spotless Mind',directorId:'d3',actors:['a6','a7'],year:2004,streaming:'Hulu',summary:'When their relationship turns sour, a couple undergoes a procedure to erase each other from thier memories'},
+                {id:'m4',title:'Arrival',directorId:'d4',actors:['a8','a9'],year:2016,streaming:'Prime Video, Paramount+',summary:'A linguist is recuited by the U.S. Army to communicate with aliens who have arrived on Earth before global war erupts.'},
+                {id:'m5',title:'Dune',directorId:'d4',actors:['a10','a11'],year:2021,streaming:'Max',summary:'A noble family becomes embroiled in a war for control over the galaxy\'s most vital resource, spice melange.'},
+                {id:'m6',title:'Little Women',directorId:'d5',actors:['a10','a12'],year:'2019',streaming:'Hulu,Fubo',summary:'Four sisters come of age in America during the 1860s after the Civil War'},
+                {id:'m7',title:'The Grand Budapest Hotel',directorId:'',actors:[],year:'',streaming:'',summary:''},
+                {id:'m8',title:'Parasite',directorId:'',actors:[],year:'',streaming:'',summary:''},
+                {id:'m9',title:'The Avengers',directorId:'',actors:[],year:'',streaming:'',summary:''},
+                {id:'m10',title:'Gladiator',directorId:'',actors:[],year:'',streaming:'',summary:''},
+                {id:'m11',title:'Alien',directorId:'',actors:[],year:'',streaming:'',summary:''},
+                {id:'m12',title:'Get Out',directorId:'',actors:[],year:'',streaming:'',summary:''},
+                {id:'m13',title:'Nope',directorId:'',actors:[],year:'',streaming:'',summary:''},
+                {id:'m14',title:'The Dark Knight',directorId:'',actors:[],year:'',streaming:'',summary:''},
+                {id:'m15',title:'The Vergin suicides',directorId:'',actors:[],year:'',streaming:'',summary:''},
+                /*      {id:'',title:'',directorId:'',actors:[],year:'',streaming:'',summary:''},   */
+            ]
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Cinephile Directory (Local Image Upload)</title>
+    
+    <style>
+        /* 1. Global & Base Styles */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif; 
+            background-color: #111827; /* Replaces bg-gray-900 */
+            color: #f3f4f6; /* Replaces text-gray-100 */
+        }
+        
+        /* Custom scrollbar for aesthetic */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #2a2a2a; }
+        ::-webkit-scrollbar-thumb { background: #4a4a4a; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #6a6a6a; }
+
+        /* 2. Main Layout - Base container remains flexible */
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+            position: relative; /* Needed for content offset */
+        }
+
+        /* 3. Sidebar Styling - Stays fixed on desktop */
+        .sidebar {
+            width: 16rem; /* Replaces w-64 */
+            min-height: 100vh;
+            background-color: #1f2937; /* Slightly different dark background */
+            padding: 1.5rem; /* Replaces p-6 */
+            box-shadow: 5px 0 15px rgba(0, 0, 0, 0.4); /* Replaces shadow-2xl */
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 30; /* Higher Z-index to cover banner */
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .sidebar-title {
+            font-size: 2.25rem; /* Replaces text-3xl */
+            font-weight: 800; /* Replaces font-extrabold */
+            margin-bottom: 2rem; /* Replaces mb-8 */
+            color: #ef4444; /* Replaces text-red-500 */
+            letter-spacing: 0.05em; /* Replaces tracking-wider */
+            cursor: pointer;
+        }
+
+        .sidebar-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem; /* Replaces space-y-4 */
+        }
+
+        .sidebar-link {
+            display: block;
+            padding: 0.75rem; /* Replaces p-3 */
+            border-radius: 0.5rem; /* Replaces rounded-lg */
+            font-weight: 500;
+            color: #d1d5db; 
+            transition: background-color 0.2s, color 0.2s, transform 0.2s;
+        }
+
+        .sidebar-link:hover {
+            background-color: rgba(185, 28, 28, 0.15); /* Dark red hover */
+            color: #fca5a5; 
+            transform: translateX(5px);
+        }
+        
+        /* 4. Poster Banner Styles (Default Mobile) */
+        .poster-banner {
+            position: relative; /* Stacks normally on mobile */
+            width: 100%;
+            height: 10rem;
+            background-color: #0b1016; /* Very dark background */
+            box-shadow: none;
+            padding: 1.5rem 1rem; /* Mobile padding */
+            display: flex;
+            overflow-x: scroll; /* Horizontal scroll on mobile */
+            overflow-y: hidden;
+            gap: 1rem;
+            align-items: center;
+            /*new change*/
+            perspective: 1200px;
+            /*new change3.0*/
+        }
+
+        .poster-item {
+            flex-shrink: 0;
+            width: 6rem; /* Fixed width for poster item */
+            height: 9rem; /* Fixed height for poster item */
+            border-radius: 0.5rem;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
+            cursor: pointer;
+            transition: transform 0.2s;
+            border: 2px solid #374151;
+            /*new change*/
+            transform-style: preserve-3d;
+            transition: transform 0.4s ease-out;
+            transform: /*rotateY(5deg)*/ scale(1);
+        }
+        
+        .poster-item:hover {
+            /*new change*/
+            transform: rotateY(0deg) scale(1.15) /*translateY(-5px)*/ translateZ(100px);
+            border-color: #ef4444;
+            z-index: 10;
+        }
+
+        .poster-item:not(:hover) {
+        transform: rotateY(5deg) scale(0.95); /* Slightly smaller when not hovered */
+        opacity: 0.8;
+        }
+
+        .poster-item:hover + */*.poster-item*/ {
+        transform: rotateY(40deg) scale(1.05) translateX(-50PX) translateZ(70px);
+        opacity: 0.9;
+        }
+
+        .poster-item:hover + * + */*.poster-item + .poster-item*/{
+        transform: rotateY(15deg) scale(1.05) translateX(-10PX) translateZ(30px);
+        opacity: 0.9;
+        }
+
+         .poster-item:has(+ *:hover) /*.poster-item*/ {
+        transform: rotateY(-40deg) scale(1.05) translateX(50PX) translateZ(70px);
+        opacity: 0.9;
+        }
+
+        .poster-item:has(+ * + *:hover) /*.poster-item + .poster-item*/{
+        transform: rotateY(-15deg) scale(1.05) translateX(10PX) translateZ(30px);
+        opacity: 0.9;
+        }
+        .poster-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 0.5rem;
+        }
+
+        /* 5. Content Area General Styling */
+        #content-area {
+            transition: opacity 0.3s ease-in-out;
+            padding: 2.5rem; /* Standard padding for all sides */
+            flex-grow: 1; 
+            min-height: 100vh; 
+            width: 100%;
+            overflow-y: auto; 
+        }
+
+        /* Search Bar Styles */
+        .search-container {
+            margin-bottom: 2rem;
+            display: flex;
+            gap: 1rem;
+        }
+
+        .search-input {
+            flex-grow: 1;
+            padding: 0.75rem 1rem;
+            background-color: #1f2937;
+            border: 2px solid #374151;
+            border-radius: 0.5rem;
+            color: #f3f4f6;
+            font-size: 1rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .search-input:focus {
+            border-color: #ef4444;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.3);
+        }
+
+        /* 6. List Grid Layout */
+        .list-grid {
+            display: grid;
+            grid-template-columns: 1fr; /* Default: 1 column */
+            gap: 1.5rem; 
+        }
+        
+        /* Media Query for Tablet/Medium screens (Desktop Layout) */
+        @media (min-width: 768px) {
+            /* Desktop Layout Adjustments */
+            .list-grid {
+                grid-template-columns: repeat(2, 1fr); /* 2 columns for medium screens */
+            }
+            .sidebar {
+                display: flex;
+            }
+            
+            /* Banner Positioning (Next to fixed sidebar) */
+            .poster-banner {
+                position: fixed; /* Fixed position at the top */
+                top: 0;
+                left: 16rem; /* Starts exactly where the sidebar ends (16rem) */
+                width: calc(100% - 16rem); /* Takes remaining width */
+                height: 10rem;
+                z-index: 20;
+                box-shadow: 0 5px 10px rgba(0, 0, 0, 0.5);
+                padding-left: 1.5rem; /* Gap between sidebar and first poster */
+                padding-right: 1.5rem;
+                justify-content: flex-start; /* Align posters left */
+                perspective: 1500px;
+            }
+
+            /* Content Area Offset (Sidebar + Banner) */
+            #content-area {
+                /* Sidebar offset + extra gap */
+                margin-left: 17.5rem; 
+                /* Banner height (10rem) + top/bottom padding (1rem total) + extra buffer (1rem) */
+                margin-top: 12rem; 
+                width: calc(100% - 17.5rem); 
+            }
+        }
+        
+        /* Media Query for Desktop/Large screens (lg:) */
+        @media (min-width: 1024px) {
+            .list-grid {
+                grid-template-columns: repeat(3, 1fr); /* 3 columns for large screens */
+            }
+        }
+
+        /* 7. Card Styles (Existing) */
+        .detail-card {
+            background-color: #1f2937; 
+            padding: 2rem; 
+            border-radius: 0.75rem; 
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); 
+            border: 1px solid rgba(220, 38, 38, 0.3);
+        }
+
+        .list-card {
+            padding: 1.25rem; 
+            background-color: #1f2937; 
+            border-radius: 0.5rem; 
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.06); 
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid #374151; 
+        }
+        
+        .list-card:hover {
+            background-color: #374151; 
+            transform: scale(1.02); 
+            border-color: #dc2626; 
+        }
+        
+        /* Welcome Page Specific Styles */
+        .welcome-box {
+            min-height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 5rem 0;
+            background-color: #1f2937;
+            border-radius: 0.75rem;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        /* Custom Button Styles */
+        .btn-primary {
+            padding: 0.75rem 1.5rem;
+            background-color: #dc2626; 
+            color: white;
+            font-weight: 600;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.2s;
+        }
+
+        .btn-primary:hover {
+            background-color: #b91c1c; 
+            transform: scale(1.05);
+        }
+
+        .btn-secondary-back {
+            margin-top: 2rem;
+            padding: 0.5rem 1rem;
+            background-color: #374151; 
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            transition: background-color 0.2s;
+        }
+
+        .btn-secondary-back:hover {
+            background-color: #4b5563; 
+        }
+        
+        .poster-upload-card {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            align-items: center;
+            text-align: center;
+            padding: 1rem;
+            background-color: #2a2a2a;
+            border-radius: 0.5rem;
+        }
+        
+        /* Mobile adjustment (max-width: 767px) */
+        @media (max-width: 767px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative; /* Make it stack on top on mobile */
+                box-shadow: 0 5px 10px rgba(0, 0, 0, 0.4);
+            }
+            .app-container {
+                flex-direction: column;
+                min-height: auto;
+            }
+            #content-area {
+                padding: 1.5rem; /* Standard mobile padding */
+                margin-left: 0; /* Remove desktop margin */
+                margin-top: 0; /* Remove desktop margin-top */
+                width: 100%; /* Full width */
+            }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+
+        <div id="sidebar" class="sidebar">
+            <h2 class="sidebar-title" onclick="navigateTo('main', null)">CineVault</h2>
+
+            <nav class="sidebar-nav">
+                <a href="#" class="sidebar-link" data-type="movies">All Movies</a>
+                <a href="#" class="sidebar-link" data-type="directors">All Directors</a>
+                <a href="#" class="sidebar-link" data-type="actors">All Actors</a>
+                <a href="#" class="sidebar-link" data-type="series">All Series</a>
+                <a href="#" class="sidebar-link" onclick="navigateTo('poster_management')" style="color: #fca5a5; font-weight: 600;">Manage Posters</a>
+                <a href="#" class="sidebar-link" onclick="navigateTo('main', null)">Home</a>
+            </nav>
+        </div>
+        
+        <header id="poster-banner" class="poster-banner"></header>
+
+        <main id="content-area">
+            <div id="content-injector"></div>
+        </main>
+    </div>
+
+    <script>
+        // --- 1. MOCK DATA STRUCTURE ---
+        const cineData = {
+            movies: [
+                { id: 'm1', title: 'Pulp Fiction', directorId: 'd1', actors: ['a1', 'a2', 'a3'], year: 1994, streaming: 'Max, SkyShowtime', summary: 'The lives of two mob hitmen, a boxer, a gangster and his wife, and a pair of diner bandits intertwine in four tales of violence and redemption.' },
+                { id: 'm2', title: 'Inception', directorId: 'd2', actors: ['a4', 'a5'], year: 2010, streaming: 'Netflix, Prime Video', summary: 'A thief who steals corporate secrets through the use of dream-sharing technology is given the inverse task of planting an idea into the mind of a C.E.O.' },
+                { id: 'm3', title: 'Eternal Sunshine of the Spotless Mind', directorId: 'd3', actors: ['a6', 'a7'], year: 2004, streaming: 'Hulu', summary: 'When their relationship turns sour, a couple undergoes a procedure to erase each other from their memories.' },
+                { id: 'm4', title: 'Arrival', directorId: 'd4', actors: ['a8', 'a9'], year: 2016, streaming: 'Prime Video, Paramount+', summary: 'A linguist is recruited by the U.S. Army to communicate with aliens who have arrived on Earth before global war erupts.' },
+                { id: 'm5', title: 'Dune', directorId: 'd4', actors: ['a10', 'a11'], year: 2021, streaming: 'Max', summary: 'A noble family becomes embroiled in a war for control over the galaxy\'s most vital resource, spice melange.' },
+                { id: 'm6', title: 'Little Women', directorId: 'd5', actors: ['a10', 'a12'], year: 2019, streaming: 'Hulu, Fubo', summary: 'Four sisters come of age in America during the 1860s after the Civil War.' },
+                { id: 'm7', title: 'The Grand Budapest Hotel', directorId: 'd6', actors: ['a13', 'a14'], year: 2014, streaming: 'Hulu, Disney+', summary: 'The adventures of Gustave H, a legendary concierge at a famous European hotel, and Zero Moustafa, the lobby boy who becomes his most trusted friend.' },
+                { id: 'm8', title: 'Parasite', directorId: 'd7', actors: ['a15', 'a16'], year: 2019, streaming: 'Max', summary: 'Greed and class discrimination threaten the newly formed symbiotic relationship between the wealthy Park family and the destitute Kim clan.' },
+                { id: 'm9', title: 'THE AVENGERS', directorId: 'd8' ,actors: ['a3', 'a9'], year:2014 , streaming: 'jiohostar', summary: 'MARVEL' },
+                // --- NEW MOVIES ADDED (m10 to m15) ---
+                { id: 'm10', title: 'Gladiator', directorId: 'd9', actors: ['a17', 'a18'], year: 2000, streaming: 'Peacock, Max', summary: 'A Roman general is betrayed and his family murdered by an emperor\'s corrupt son, forcing him to seek revenge as a gladiator.' },
+                { id: 'm11', title: 'Alien', directorId: 'd9', actors: ['a2', 'a11'], year: 1979, streaming: 'Hulu, Disney+', summary: 'The crew of a commercial space tug encounter a deadly alien lifeform, leading to a desperate fight for survival.' },
+                { id: 'm12', title: 'Get Out', directorId: 'd10', actors: ['a19', 'a8'], year: 2017, streaming: 'Max', summary: 'A young Black man visits his white girlfriend\'s family estate, only to discover a series of increasingly disturbing secrets.' },
+                { id: 'm13', title: 'Nope', directorId: 'd10', actors: ['a19', 'a20'], year: 2022, streaming: 'Peacock', summary: 'Brother and sister ranch owners in a secluded California valley attempt to capture video evidence of an unidentified flying object.' },
+                { id: 'm14', title: 'The Dark Knight', directorId: 'd2', actors: ['a21', 'a22'], year: 2008, streaming: 'Max, Netflix', summary: 'Batman confronts the Joker, a criminal mastermind who tests the limits of Gotham City\'s justice system.' },
+                { id: 'm15', title: 'The Virgin Suicides', directorId: 'd11', actors: ['a23', 'a24'], year: 1999, streaming: 'Mubi', summary: 'A group of neighborhood boys become obsessed with five enigmatic teenage sisters who are sheltered by their overly religious parents.' }
+            ],
+            directors: [
+                { id: 'd1', name: 'Quentin Tarantino', bio: 'Known for non-linear storylines and stylized violence.', born: 1963, relatedMovies: ['m1'] },
+                { id: 'd2', name: 'Christopher Nolan', bio: 'Master of high-concept, non-linear narratives and practical effects.', born: 1970, relatedMovies: ['m2', 'm14'] }, // Updated
+                { id: 'd3', name: 'Michel Gondry', bio: 'A French director known for his innovative visual style and experimental approach.', born: 1963, relatedMovies: ['m3'] },
+                { id: 'd4', name: 'Denis Villeneuve', bio: 'A Canadian filmmaker known for critically acclaimed science fiction films.', born: 1967, relatedMovies: ['m4', 'm5'] },
+                { id: 'd5', name: 'Greta Gerwig', bio: 'An American actress and director, known for her coming-of-age stories and feminist perspectives.', born: 1983, relatedMovies: ['m6'] },
+                { id: 'd6', name: 'Wes Anderson', bio: 'Famous for his distinctive visual and narrative style, characterized by symmetry and pastel colors.', born: 1969, relatedMovies: ['m7'] },
+                { id: 'd7', name: 'Bong Joon-ho', bio: 'South Korean filmmaker known for his genre-defying works with social commentary.', born: 1969, relatedMovies: ['m8'] },
+                { id: 'd8', name: 'Anthony Russo', bio: 'became so famous after working in mcu.', born:1970 , relatedMovies: ['m9'] },
+                // --- NEW DIRECTORS ADDED ---
+                { id: 'd9', name: 'Ridley Scott', bio: 'Veteran British director known for science fiction and historical epics.', born: 1937, relatedMovies: ['m10', 'm11'] },
+                { id: 'd10', name: 'Jordan Peele', bio: 'American filmmaker known for horror films with sharp social commentary.', born: 1979, relatedMovies: ['m12', 'm13'] },
+                { id: 'd11', name: 'Sofia Coppola', bio: 'American director known for atmospheric and visually distinctive films.', born: 1971, relatedMovies: ['m15'] },
+            ],
+            actors: [
+                { id: 'a1', name: 'John Travolta', bio: 'An American actor and singer, known for his roles in the 70s and 90s.', born: 1954, relatedMovies: ['m1'] },
+                { id: 'a2', name: 'Uma Thurman', bio: 'Known for her roles in action and drama films, often collaborating with Tarantino.', born: 1970, relatedMovies: ['m1', 'm11'] }, // Updated
+                { id: 'a3', name: 'Samuel L. Jackson', bio: 'A highly prolific actor known for his distinct voice and intensity.', born: 1948, relatedMovies: ['m1','m9'] },
+                { id: 'a4', name: 'Leonardo DiCaprio', bio: 'An Oscar-winning actor, frequent collaborator with Scorsese and Nolan.', born: 1974, relatedMovies: ['m2'] },
+                { id: 'a5', name: 'Joseph Gordon-Levitt', bio: 'Versatile American actor who began his career as a child star.', born: 1981, relatedMovies: ['m2'] },
+                { id: 'a6', name: 'Jim Carrey', bio: 'Known for his highly energetic slapstick performances and dramatic roles.', born: 1962, relatedMovies: ['m3'] },
+                { id: 'a7', name: 'Kate Winslet', bio: 'English actress, noted for her work in period dramas.', born: 1975, relatedMovies: ['m3'] },
+                { id: 'a8', name: 'Amy Adams', bio: 'Known for her versatile roles across drama and comedy.', born: 1974, relatedMovies: ['m4', 'm12'] }, // Updated
+                { id: 'a9', name: 'Jeremy Renner', bio: 'Known for action roles and being part of the Marvel Cinematic Universe.', born: 1971, relatedMovies: ['m4','m9'] },
+                { id: 'a10', name: 'Timothée Chalamet', bio: 'One of the leading young actors of his generation, known for dramatic roles.', born: 1995, relatedMovies: ['m5', 'm6'] },
+                { id: 'a11', name: 'Zendaya', bio: 'Actress and singer who rose to prominence on the Disney Channel.', born: 1996, relatedMovies: ['m5', 'm11'] }, // Updated
+                { id: 'a12', name: 'Saoirse Ronan', bio: 'Irish-American actress, noted for her work in historical and coming-of-age films.', born: 1994, relatedMovies: ['m6'] },
+                { id: 'a13', name: 'Ralph Fiennes', bio: 'English actor known for his distinguished stage and screen performances.', born: 1962, relatedMovies: ['m7'] },
+                { id: 'a14', name: 'Tony Revolori', bio: 'American actor who broke out in Wes Anderson\'s filmography.', born: 1996, relatedMovies: ['m7'] },
+                { id: 'a15', name: 'Song Kang-ho', bio: 'Highly acclaimed South Korean actor.', born: 1967, relatedMovies: ['m8'] },
+                { id: 'a16', name: 'Choi Woo-shik', bio: 'A rising star in Korean cinema, known internationally for Parasite.', born: 1990, relatedMovies: ['m8'] },
+                // --- NEW ACTORS ADDED ---
+                { id: 'a17', name: 'Russell Crowe', bio: 'Oscar-winning New Zealand actor known for intense roles.', born: 1964, relatedMovies: ['m10'] },
+                { id: 'a18', name: 'Joaquin Phoenix', bio: 'Academy Award-winning American actor known for complex characters.', born: 1974, relatedMovies: ['m10'] },
+                { id: 'a19', name: 'Daniel Kaluuya', bio: 'British actor who rose to fame through his collaboration with Jordan Peele.', born: 1989, relatedMovies: ['m12', 'm13'] },
+                { id: 'a20', name: 'Keke Palmer', bio: 'American actress and singer known for her versatility in film and TV.', born: 1993, relatedMovies: ['m13'] },
+                { id: 'a21', name: 'Christian Bale', bio: 'British actor known for intense method acting and diverse roles.', born: 1974, relatedMovies: ['m14'] },
+                { id: 'a22', name: 'Heath Ledger', bio: 'Australian actor, posthumously won an Oscar for his role as the Joker.', born: 1979, relatedMovies: ['m14'] },
+                { id: 'a23', name: 'Kirsten Dunst', bio: 'American actress known for her roles in independent films and blockbusters.', born: 1982, relatedMovies: ['m15'] },
+                { id: 'a24', name: 'Josh Hartnett', bio: 'American actor and producer.', born: 1978, relatedMovies: ['m15'] },
+            ],
+            series: [
+                { id: 's1', title: 'The Sopranos', director: 'David Chase', summary: 'New Jersey mob boss Tony Soprano deals with personal and professional issues.', streaming: 'Max', year: 1999 },
+                { id: 's2', title: 'Breaking Bad', director: 'Vince Gilligan', summary: 'A high school chemistry teacher turns to making and selling methamphetamine.', streaming: 'Netflix', year: 2008 },
+                { id: 's3', title: 'The Queen\'s Gambit', director: 'Scott Frank', summary: 'Orphaned chess prodigy Beth Harmon battles addiction on her quest to become the greatest chess player in the world.', streaming: 'Netflix', year: 2020 },
+                //---{ id: 's', title: '', director: '', summary: '', streaming: '', year:  },---
+            ]
+        };
+
+        // --- 1. MOCK DATA STRUCTURE (Cont.) ---
+        
+        // This will temporarily store your local images as Base64 strings (data URLs)
+        // This data will persist only for the current browser session.
+        const sessionPosters = {}; 
+        
+        // Static placeholders (used if no session poster is loaded)
+        const placeholderPosters = { 
+            'm1': 'https://placehold.co/120x180/dc2626/ffffff?text=Pulp',
+            'm2': "inception.jpeg",
+            'm3': 'https://placehold.co/120x180/7e22ce/ffffff?text=Eternal',
+            'm4': 'https://placehold.co/120x180/06b6d4/ffffff?text=Arrival',
+            'm5': "dune.jpeg",
+            'm6': 'https://placehold.co/120x180/000000/ffffff?text=Little Women',
+            'm7': 'https://placehold.co/120x180/000000/ffffff?text=The Grand Budapest Hotel',
+            'm8': 'https://placehold.co/120x180/000000/ffffff?text=Parasite',
+            // --- NEW POSTER PLACEHOLDERS ADDED (m10 to m15) ---
+            'm10': 'https://placehold.co/120x180/7e22ce/ffffff?text=GLADIATOR',
+            'm11': 'https://placehold.co/120x180/059669/ffffff?text=ALIEN',
+            'm12': 'https://placehold.co/120x180/000000/ffffff?text=GET+OUT',
+            'm13': 'https://placehold.co/120x180/000000/ffffff?text=NOPE',
+            'm14': 'https://placehold.co/120x180/374151/ffffff?text=TDK',
+            'm15': 'https://placehold.co/120x180/991b1b/ffffff?text=SUICIDES'
+        };
+
+        // --- 2. STATE MANAGEMENT & NAVIGATION ---
+
+        const contentInjector = document.getElementById('content-injector');
+        const contentArea = document.getElementById('content-area');
+
+        /**
+         * Navigates the application to a new view state and re-renders the content.
+         */
+        function navigateTo(view, dataType, id) {
+            contentArea.style.opacity = 0;
+
+            setTimeout(() => {
+                switch (view) {
+                    case 'main':
+                        renderMainPage();
+                        break;
+                    case 'list':
+                        renderListPage(dataType, cineData[dataType]);
+                        break;
+                    case 'movie':
+                        renderMoviePage(id);
+                        break;
+                    case 'director':
+                        renderDirectorPage(id);
+                        break;
+                    case 'actor':
+                        renderActorPage(id);
+                        break;
+                    case 'series':
+                        const seriesItem = cineData.series.find(s => s.id === id);
+                        if (id && seriesItem) {
+                            renderSeriesPage(id);
+                        } else {
+                            renderListPage('series', cineData.series);
+                        }
+                        break;
+                    case 'poster_management': // NEW VIEW
+                        renderPosterManagementPage();
+                        break;
+                    default:
+                        renderMainPage();
+                }
+                contentArea.style.opacity = 1;
+            }, 300);
+        }
+        
+        // --- 3. BANNER LOGIC (Updated to use sessionPosters) ---
+
+        /**
+         * Selects a random subset of movies for the banner.
+         */
+        function getRandomMovies(count = 5) {
+            const allMovies = cineData.movies;
+            // Simple shuffle and slice logic
+            const shuffled = [...allMovies].sort(() => 0.5 - Math.random());
+            return shuffled.slice(0, count);
+        }
+
+        /**
+         * Renders the horizontal scrolling banner with random movie posters.
+         */
+        function renderPosterBanner() {
+            const banner = document.getElementById('poster-banner');
+            if (!banner) return;
+            
+            const randomMovies = getRandomMovies(15); // Show 8 random posters
+            
+            // Generate poster HTML
+            banner.innerHTML = randomMovies.map(movie => {
+                const placeholderText = movie.title.replace(/ /g, '%20').substring(0, 10);
+                
+                // Prioritize the locally loaded session poster, then fall back to the static placeholder
+                const imageUrl = sessionPosters[movie.id] || placeholderPosters[movie.id] || `https://placehold.co/120x180/2a2a2a/f87171?text=${placeholderText}`;
+                
+                return `
+                    <div class="poster-item" 
+                         title="${movie.title} (${movie.year})" 
+                         onclick="navigateTo('movie', null, '${movie.id}')">
+                        <img src="${imageUrl}" 
+                             alt="Poster for ${movie.title}" 
+                             onerror="this.style.backgroundColor='#dc2626'; this.style.color='white'; this.alt='${movie.title}'">
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // --- 4. NEW: POSTER MANAGEMENT LOGIC ---
+
+        /**
+         * Handles the file upload event, reads the file as a Base64 string,
+         * and stores it in the sessionPosters map.
+         */
+        function handleFileUpload(event, movieId) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // Check file type (optional but good practice)
+            if (!file.type.startsWith('image/')) {
+                console.error("Please select an image file.");
+                event.target.value = ''; // Reset file input
+                return;
+            }
+
+            const reader = new FileReader();
+
+            // When the file loads, this function executes
+            reader.onload = (e) => {
+                // e.target.result is the Base64 data URL
+                sessionPosters[movieId] = e.target.result;
+                
+                // Update the UI
+                renderPosterBanner();
+                renderPosterManagementPage(); // Re-render the management page to show the new poster
+                console.log(`Poster for ${movieId} loaded successfully.`);
+            };
+
+            // Read the file as a data URL (Base64)
+            reader.readAsDataURL(file);
+        }
+        
+        /**
+         * Renders the page for users to upload local posters.
+         */
+        function renderPosterManagementPage() {
+            contentInjector.innerHTML = `
+                <h2 style="font-size: 2.25rem; font-weight: 700; margin-bottom: 0.5rem; color: #f87171;">Manage Local Posters</h2>
+                <p style="color: #9ca3af; margin-bottom: 2rem;">Select a movie below to upload an image file from your PC. This image will only be visible in this browser session.</p>
+                
+                <div class="list-grid" id="poster-management-container">
+                    ${cineData.movies.map(movie => {
+                        const placeholderText = movie.title.replace(/ /g, '%20').substring(0, 10);
+                        const posterSrc = sessionPosters[movie.id] || placeholderPosters[movie.id] || `https://placehold.co/120x180/2a2a2a/f87171?text=${placeholderText}`;
+                        
+                        return `
+                            <div class="poster-upload-card">
+                                <h4 style="font-size: 1.125rem; font-weight: 600; color: #fff; margin-bottom: 0.5rem;">${movie.title}</h4>
+                                
+                                <img src="${posterSrc}" 
+                                     alt="Current poster for ${movie.title}" 
+                                     style="width: 8rem; height: 12rem; object-fit: cover; border-radius: 0.5rem; border: 2px solid #ef4444; margin-bottom: 0.5rem;">
+
+                                <label for="file-upload-${movie.id}" 
+                                       class="btn-primary" 
+                                       style="display: block; text-align: center; width: 100%; font-size: 0.875rem;">
+                                    Upload New Poster
+                                </label>
+                                <input type="file" 
+                                       id="file-upload-${movie.id}" 
+                                       data-movie-id="${movie.id}"
+                                       accept="image/*"
+                                       style="display: none;">
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            `;
+            
+            // Attach event listeners to all dynamically created file inputs
+            const inputs = document.querySelectorAll('input[type="file"]');
+            inputs.forEach(input => {
+                input.addEventListener('change', (e) => {
+                    const movieId = e.target.dataset.movieId;
+                    handleFileUpload(e, movieId);
+                });
+            });
+        }
+
+
+        // --- 5. RENDERING FUNCTIONS (Main Content) ---
+        
+        /** Renders the items based on a filtered list (used by search functionality).
+         */
+        function renderItems(dataType, filteredItems) {
+            const listContainer = document.getElementById('list-container');
+            if (!listContainer) return; 
+
+            listContainer.innerHTML = filteredItems.map(item => `
+                <div data-id="${item.id}"
+                     class="list-card">
+                    <h3 style="font-size: 1.25rem; font-weight: 600; color: #fff;">${item.title || item.name}</h3>
+                    <p style="font-size: 0.875rem; color: #9ca3af;">${item.year ? item.year : item.born ? 'Born: ' + item.born : ''}</p>
+                </div>
+            `).join('');
+
+            // Re-apply click listeners to the dynamically created list items
+            const itemDivs = listContainer.querySelectorAll('div[data-id]');
+            itemDivs.forEach(itemDiv => {
+                itemDiv.addEventListener('click', () => {
+                    const id = itemDiv.dataset.id;
+                    let viewType = dataType.slice(0, -1);
+                    if (viewType === 'serie') viewType = 'series';
+                    navigateTo(viewType, null, id);
+                });
+            });
+        }
+        
+        /**
+         * Filters the list items based on the search term.
+         */
+        function filterList(dataType, items, searchTerm) {
+            const term = searchTerm.toLowerCase().trim();
+            
+            const filtered = items.filter(item => {
+                const searchableText = item.title || item.name;
+                return searchableText && searchableText.toLowerCase().includes(term);
+            });
+
+            renderItems(dataType, filtered);
+        }
+
+        /** Renders the Main Welcome Page */
+        function renderMainPage() {
+            contentInjector.innerHTML = `
+                <div class="welcome-box">
+                    <h2 style="font-size: 3rem; font-weight: 900; color: #fff; margin-bottom: 1rem;">Welcome, Cinephile.</h2>
+                    <p style="font-size: 1.25rem; color: #9ca3af; max-width: 40rem; margin-bottom: 2rem;">
+                        Dive into the interconnected web of cinema. Use the **CineVault** sidebar to explore directors, actors, and their masterpieces. Use the **Manage Posters** link to upload your own local movie posters!
+                    </p>
+                    <div style="display: flex; gap: 1rem;">
+                        <button onclick="navigateTo('list', 'movies')" class="btn-primary">
+                            Browse Movies
+                        </button>
+                        <button onclick="navigateTo('list', 'directors')" class="btn-secondary-back" style="margin-top: 0;">
+                            Find Directors
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        /** Renders a list of items (e.g., all movies, all directors) */
+        function renderListPage(dataType, items) {
+            const title = `All ${dataType.charAt(0).toUpperCase() + dataType.slice(1)}`;
+            
+            contentInjector.innerHTML = `
+                <h2 style="font-size: 2.25rem; font-weight: 700; margin-bottom: 2rem; color: #f87171;">${title}</h2>
+                
+                <div class="search-container">
+                    <input type="text" id="search-input" class="search-input" placeholder="Filter by name or title...">
+                </div>
+
+                <div class="list-grid" id="list-container">
+                    </div>
+            `;
+            
+            // Initial render of all items
+            renderItems(dataType, items);
+
+            // Attach search event listener
+            const searchInput = document.getElementById('search-input');
+            if (searchInput) {
+                searchInput.addEventListener('input', (e) => {
+                    filterList(dataType, items, e.target.value);
+                });
+            }
+        }
+
+
+        /** Renders the detail page for a specific Movie */
+        function renderMoviePage(id) {
+            const movie = cineData.movies.find(m => m.id === id);
+            if (!movie) return contentInjector.innerHTML = `<p style="color: #ef4444;">Movie not found.</p>`;
+
+            const director = cineData.directors.find(d => d.id === movie.directorId);
+            const cast = movie.actors.map(aid => cineData.actors.find(a => a.id === aid)).filter(a => a);
+
+            contentInjector.innerHTML = `
+                <div class="detail-card">
+                    <h2 style="font-size: 3rem; font-weight: 800; margin-bottom: 0.5rem; color: #ef4444;">${movie.title}</h2>
+                    <p style="font-size: 1.25rem; color: #9ca3af; margin-bottom: 1.5rem;">${movie.year}</p>
+
+                    <div style="margin-bottom: 1.5rem; padding: 1rem; background-color: #111827; border-radius: 0.5rem;">
+                        <span style="color: #f87171; font-weight: 600;">Director:</span>
+                        <a href="#" onclick="navigateTo('director', null, '${director.id}')"
+                           style="color: #fff; font-weight: 500; margin-left: 0.5rem; text-decoration: underline; transition: color 0.2s;">
+                           ${director.name}
+                        </a>
+                    </div>
+
+                    <div style="margin-bottom: 2rem;">
+                        <h3 style="font-size: 1.5rem; font-weight: 600; color: #fff; margin-bottom: 0.5rem;">Plot Summary</h3>
+                        <p style="color: #d1d5db; line-height: 1.6;">${movie.summary}</p>
+                        <p style="font-size: 1.125rem; color: #f87171; font-weight: 500; margin-top: 1rem;">Available on: <span style="color: #fff; font-weight: 400;">${movie.streaming}</span></p>
+                    </div>
+
+                    <h3 style="font-size: 1.5rem; font-weight: 600; color: #fff; margin-bottom: 1rem; border-bottom: 1px solid #374151; padding-bottom: 0.5rem;">Starring Cast</h3>
+                    <div style="display: flex; flex-wrap: wrap; gap: 1rem;">
+                        ${cast.map(actor => `
+                            <a href="#" onclick="navigateTo('actor', null, '${actor.id}')"
+                               style="display: inline-block; padding: 0.5rem 1rem; background-color: #374151; color: #fff; border-radius: 9999px; transition: background-color 0.2s; font-size: 0.875rem; font-weight: 500;">
+                                ${actor.name}
+                            </a>
+                        `).join('')}
+                    </div>
+                </div>
+                <button onclick="navigateTo('list', 'movies')" class="btn-secondary-back">
+                    ← Back to All Movies
+                </button>
+            `;
+        }
+        
+        /** Renders the detail page for a specific Director */
+        function renderDirectorPage(id) {
+            const director = cineData.directors.find(d => d.id === id);
+            if (!director) return contentInjector.innerHTML = `<p style="color: #ef4444;">Director not found.</p>`;
+            
+            const relatedMovies = director.relatedMovies.map(mid => cineData.movies.find(m => m.id === mid)).filter(m => m);
+
+            contentInjector.innerHTML = `
+                <div class="detail-card">
+                    <h2 style="font-size: 3rem; font-weight: 800; margin-bottom: 0.5rem; color: #ef4444;">${director.name}</h2>
+                    <p style="font-size: 1.25rem; color: #9ca3af; margin-bottom: 1.5rem;">Born: ${director.born}</p>
+
+                    <div style="margin-bottom: 2rem;">
+                        <h3 style="font-size: 1.5rem; font-weight: 600; color: #fff; margin-bottom: 0.5rem;">Biography</h3>
+                        <p style="color: #d1d5db; line-height: 1.6;">${director.bio}</p>
+                    </div>
+
+                    <h3 style="font-size: 1.5rem; font-weight: 600; color: #fff; margin-bottom: 1rem; border-bottom: 1px solid #374151; padding-bottom: 0.5rem;">Key Filmography</h3>
+                    <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                        ${relatedMovies.map(movie => `
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem; background-color: #111827; border-radius: 0.25rem;">
+                                <a href="#" onclick="navigateTo('movie', null, '${movie.id}')"
+                                   style="font-size: 1.125rem; color: #fff; font-weight: 500; transition: color 0.2s;">
+                                   ${movie.title} (${movie.year})
+                                </a>
+                                <span style="font-size: 0.875rem; color: #9ca3af;">Movie</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+                <button onclick="navigateTo('list', 'directors')" class="btn-secondary-back">
+                    ← Back to All Directors
+                </button>
+            `;
+        }
+
+        /** Renders the detail page for a specific Actor */
+        function renderActorPage(id) {
+            const actor = cineData.actors.find(a => a.id === id);
+            if (!actor) return contentInjector.innerHTML = `<p style="color: #ef4444;">Actor not found.</p>`;
+
+            const relatedMovies = actor.relatedMovies.map(mid => cineData.movies.find(m => m.id === mid)).filter(m => m);
+
+            contentInjector.innerHTML = `
+                <div class="detail-card">
+                    <h2 style="font-size: 3rem; font-weight: 800; margin-bottom: 0.5rem; color: #ef4444;">${actor.name}</h2>
+                    <p style="font-size: 1.25rem; color: #9ca3af; margin-bottom: 1.5rem;">Born: ${actor.born}</p>
+
+                    <div style="margin-bottom: 2rem;">
+                        <h3 style="font-size: 1.5rem; font-weight: 600; color: #fff; margin-bottom: 0.5rem;">Biography</h3>
+                        <p style="color: #d1d5db; line-height: 1.6;">${actor.bio}</p>
+                    </div>
+
+                    <h3 style="font-size: 1.5rem; font-weight: 600; color: #fff; margin-bottom: 1rem; border-bottom: 1px solid #374151; padding-bottom: 0.5rem;">Key Filmography</h3>
+                    <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                        ${relatedMovies.map(movie => `
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem; background-color: #111827; border-radius: 0.25rem;">
+                                <a href="#" onclick="navigateTo('movie', null, '${movie.id}')"
+                                   style="font-size: 1.125rem; color: #fff; font-weight: 500; transition: color 0.2s;">
+                                   ${movie.title} (${movie.year})
+                                </a>
+                                <span style="font-size: 0.875rem; color: #9ca3af;">Movie</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+                <button onclick="navigateTo('list', 'actors')" class="btn-secondary-back">
+                    ← Back to All Actors
+                </button>
+            `;
+        }
+        
+        /** Renders the detail page for a specific Series */
+        function renderSeriesPage(id) {
+            const series = cineData.series.find(s => s.id === id);
+            if (!series) return contentInjector.innerHTML = `<p style="color: #ef4444;">Series not found.</p>`;
+
+            contentInjector.innerHTML = `
+                <div class="detail-card">
+                    <h2 style="font-size: 3rem; font-weight: 800; margin-bottom: 0.5rem; color: #ef4444;">${series.title}</h2>
+                    <p style="font-size: 1.25rem; color: #9ca3af; margin-bottom: 1.5rem;">First Aired: ${series.year}</p>
+
+                    <div style="margin-bottom: 2rem; display: flex; flex-direction: column; gap: 0.5rem;">
+                        <p style="font-size: 1.125rem; color: #f87171; font-weight: 500;">Creator/Showrunner: <span style="color: #fff;">${series.director}</span></p>
+                        <p style="font-size: 1.125rem; color: #f87171; font-weight: 500;">Available on: <span style="color: #fff;">${series.streaming}</span></p>
+                    </div>
+                    
+                    <h3 style="font-size: 1.5rem; font-weight: 600; color: #fff; margin-bottom: 0.5rem;">Synopsis</h3>
+                    <p style="color: #d1d5db; line-height: 1.6;">${series.summary}</p>
+                    
+                </div>
+                <button onclick="navigateTo('list', 'series')" class="btn-secondary-back">
+                    ← Back to All Series
+                </button>
+            `;
+        }
+
+        // --- 6. INITIALIZATION AND EVENT LISTENERS ---
+
+        function initApp() {
+            // 1. Render the random poster banner
+            renderPosterBanner();
+            
+            // 2. Apply event listeners to sidebar links
+            const sidebarLinks = document.querySelectorAll('.sidebar-link');
+            sidebarLinks.forEach(link => {
+                if (link.dataset.type) {
+                    link.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        navigateTo('list', link.dataset.type);
+                    });
+                }
+            });
+
+            // 3. Start the application on the main page
+            navigateTo('main');
+        }
+
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>
