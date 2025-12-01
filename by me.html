@@ -69,7 +69,7 @@
             transform: translateX(5px);
         }
 
-        .poater-banner{
+        .poster-banner{
             position:relative;
             width:100%;
             height:10rem;
@@ -104,7 +104,7 @@
             z-index:10;
         }
 
-        .pooster-item:not(:hover){
+        .poster-item:not(:hover){
             transform:rotateY(5deg) scale(0.95);
             opacity:0.8;
         }
@@ -124,7 +124,7 @@
             opacity: 0.9;
         }
 
-        .pooster-item:has(+*+*:hover){
+        .poster-item:has(+*+*:hover){
             transform:rotateY(-15deg) scale(1.05) translateX(10PX) translateZ(30px);
             opacity:0.9;
         }
@@ -151,7 +151,7 @@
             gap:1rem;
         }
 
-        .seach-input{
+        .search-input{
             flex-grow:1;
             padding:0.75rem 1rem;
             background-color:#1f2937;
@@ -162,7 +162,7 @@
             transition:border-color 0.2s, box-shadow 0.2s;
         }
 
-        .seach-input:focus{
+        .search-input:focus{
             border-color:#ef4444;
             outline: none;
             box-shadow: 0 0 0 3px rgba(239,68,68,0.3);
@@ -193,7 +193,7 @@
         }
 
         .list-card:hover{
-            background-color:#373151;
+            background-color:#374151;
             transform:scale(1.02);
             border-color:#dc2626;
         }
@@ -282,9 +282,9 @@
             }
             .poster-banner{
                 position:fixed;
-                top:o;
+                top:0;
                 left:16rem;
-                width:calc(100%-16rem);
+                width:calc(100% - 16rem);
                 height:10rem;
                 z-index:20;
                 box-shadow:0 5px 10px rgba(0,0,0,0.5);
@@ -296,7 +296,7 @@
             #content-area{
                 margin-left:17.5rem;
                 margin-top:12rem;
-                width:calc(100%-17.5rem);
+                width:calc(100% - 17.5rem);
             }
         }
         /*                              this is for laptop like view                            */
@@ -315,7 +315,7 @@
 
         <!--sidebar-->
         <div id="sidebar" class="sidebar">
-            <h2 class="sidebar-title" onclick="navigateTo('mian',null)">cinevault</h2>
+            <h2 class="sidebar-title" onclick="navigateTo('main', null)">Cinevault</h2>
             <nav class="sidebar-nav">
                 <a href="#" class="sidebar-link" data-type="movies">All Movies</a>
                 <a href="#" class="sidebar-link" data-type="directors">All Directors</a>
@@ -332,7 +332,7 @@
 
         <!--main cotent area-->
         <main id="content-area">
-            <div id="content-innjector"></div>
+            <div id="content-injector"></div>
         </main>
     </div>
 
@@ -340,24 +340,433 @@
         //data
         const cineData={
             movies:[
+                {id:'m9',title:'The Avengers',directorId:'d8',actors:['a23','a3','a9'],year:2014,streaming:'Disney+',summary:'Nick Fury assembles the Avengers—Iron Man, Captain America, Thor, and Hulk—to combat Loki and his alien army invading Earth.'},
                 {id:'m1',title:'Pulp Friction',directorId:'d1',actors:['a1','a2','a3'],year:1994,streaming:'Max,SkysShowtime',summary:'The lives of two mob hitmen, a boxer, a gangster and his wife, and a pair of diner bandits intertwine in four tales of violence and redemption.'},
-                {id:'m2',title:'Incption',directorId:'d2',actors:['a4','a5'],year:2010,streaming:'Netflix,Prime Video',summary:'A thief who steals corporate secret through the use of dream-sharing technology is given the inverse task of planting an idea into the mind of a C.E.O.'},
+                {id:'m2',title:'Inception',directorId:'d2',actors:['a4','a5'],year:2010,streaming:'Netflix,Prime Video',summary:'A thief who steals corporate secret through the use of dream-sharing technology is given the inverse task of planting an idea into the mind of a C.E.O.'},
+                {id:'m14',title:'The Dark Knight',directorId:'d2',actors:['a21','a22'],year:2008,streaming:'Max, Netflix',summary:'Batman confronts the Joker, a criminal mastermind who tests the limits of Gotham City\'s justice system.'},
+                {id:'m10',title:'Gladiator',directorId:'d9',actors:['a17','a18'],year:2000,streaming:'Peacock, Max',summary:'A Roman general is betrayed and his family murdered by an emperor\'s corrupt son, forcing him to seek revenge as a gladiator.'},
+                {id:'m5',title:'Dune',directorId:'d4',actors:['a10','a11'],year:2021,streaming:'Max',summary:'A noble family becomes embroiled in a war for control over the galaxy\'s most vital resource, spice melange.'},
                 {id:'m3',title:'Eternal Sunshine of the Spotless Mind',directorId:'d3',actors:['a6','a7'],year:2004,streaming:'Hulu',summary:'When their relationship turns sour, a couple undergoes a procedure to erase each other from thier memories'},
                 {id:'m4',title:'Arrival',directorId:'d4',actors:['a8','a9'],year:2016,streaming:'Prime Video, Paramount+',summary:'A linguist is recuited by the U.S. Army to communicate with aliens who have arrived on Earth before global war erupts.'},
-                {id:'m5',title:'Dune',directorId:'d4',actors:['a10','a11'],year:2021,streaming:'Max',summary:'A noble family becomes embroiled in a war for control over the galaxy\'s most vital resource, spice melange.'},
                 {id:'m6',title:'Little Women',directorId:'d5',actors:['a10','a12'],year:'2019',streaming:'Hulu,Fubo',summary:'Four sisters come of age in America during the 1860s after the Civil War'},
-                {id:'m7',title:'The Grand Budapest Hotel',directorId:'',actors:[],year:'',streaming:'',summary:''},
-                {id:'m8',title:'Parasite',directorId:'',actors:[],year:'',streaming:'',summary:''},
-                {id:'m9',title:'The Avengers',directorId:'',actors:[],year:'',streaming:'',summary:''},
-                {id:'m10',title:'Gladiator',directorId:'',actors:[],year:'',streaming:'',summary:''},
-                {id:'m11',title:'Alien',directorId:'',actors:[],year:'',streaming:'',summary:''},
-                {id:'m12',title:'Get Out',directorId:'',actors:[],year:'',streaming:'',summary:''},
-                {id:'m13',title:'Nope',directorId:'',actors:[],year:'',streaming:'',summary:''},
-                {id:'m14',title:'The Dark Knight',directorId:'',actors:[],year:'',streaming:'',summary:''},
-                {id:'m15',title:'The Vergin suicides',directorId:'',actors:[],year:'',streaming:'',summary:''},
+                {id:'m7',title:'The Grand Budapest Hotel',directorId:'d6',actors:['a13','a14'],year:'2014',streaming:'Hulu,Disney+',summary:'The Adventure of Gustave H,a legendary concierge at a famous European hotel, and Zero Moustafa, the lobby boy who becomes his most trusted friend.'},
+                {id:'m8',title:'Parasite',directorId:'d7',actors:['a15','a16'],year:2019,streaming:'Max',summary:'Greed and class discrimination threaten the newly formed symbiotic relationship between the wealthy Park family and the destitute Kim clan.'},
+                {id:'m11',title:'Alien',directorId:'d9',actors:['a2','a11'],year:1979,streaming:'Hulu, Disney+',summary:'The crew of a commercial space tug encounter a deadly alien lifeform, leading to a desperate fight for survival.'},
+                {id:'m12',title:'Get Out',directorId:'d10',actors:['a19','a8'],year:2017,streaming:'Max',summary:'A young Black man visits his girlfriend\'s family estate, only to discover a series of increasingly disturbing secrets.'},
+                {id:'m13',title:'Nope',directorId:'d10',actors:['a19','a20'],year:2022,streaming:'Peacock',summary:'Brother and sister ranch owners in a secluded California vally attempt to capture video evidence of an unidentified flying object.'}
+                
                 /*      {id:'',title:'',directorId:'',actors:[],year:'',streaming:'',summary:''},   */
+            ],
+            directors:[
+                {id:'d8',name:'Anthony Russo',bio:'Became so famous after working in MCU.',born:1970,relatedMovies:['m9']},
+                {id:'d1',name:'Quentin Tarantino',bio:'known for non-linear storylines and stylized violence.',born:1963,relatedMovies:['m1']},
+                {id:'d2',name:'Christopher Nolan',bio:'Master of high-concept, non-linear narratives and practical effects.',born:1970,relatedMovies:['m2','m14']},
+                {id:'d3',name:'Michel Gondry',bio:'A French director known for his innovative visual style and exprimental approch', born:1963,relatedMovies:['m3']},
+                {id:'d4',name:'Denis Villeneuve',bio:'A Canadian filmmaker known for critically acclaimed science friction films.',born:1967,relatedMovies:['m4','m5']},
+                {id:'d5',name:'Wes Gerwig',bio:'An American actress and director, known for her coming-of-age stories and feminist perspecctive.',born:1983,relatedMovies:['m6']},
+                {id:'d6',name:'Wes Anderson',bio:'Famous for his distinctive visual and narative style, characterized by symmetry and pastel colors.',born:1969,relatedMovies:['m7']},
+                {id:'d7',name:'Bong Joon-ho',bio:'South Korean filmmaker known for his genre-defying works with social commentary.',born:1969,relatedMovies:['m8']},
+                
+                {id:'d9',name:'Ridley Scott',bio:'Veteran British director known for science friction and historical epics.',born:1937,relatedMovies:['m10','m11']},
+                {id:'d10',name:'Jordan Peele',bio:'American filmmaker known for horror films with sharp social commentary.',born:1979,relatedMovies:['m12','m13']}
+                /*          {id:'d',name:'',bio:'',born:,relatedMovies:['']},         */
+            ],
+            actors:[
+                {id:'a23',name:'Robert Downey Jr.',bio:'American actor and producer known for his comeback roles in action films and starring as Iron Man in the Marvel Cinematic Universe.',born:1965,relatedMovies:['m9']},
+                {id:'a4',name:'Leonardo DiCaprio',bio:'An Oscar-winning actor frequently collaborator with Scorsese and Nolan.',born:1974,relatedMovies:['m2']},
+                {id:'a11',name:'Zendaya',bio:'Actress and singer who rose to prominence onn the Disney Channel.',born:1996,relatedMovies:['m5','m11']},
+                {id:'a21',name:'Christain Bale',bio:'British actor known for intense method acting and diverse roles.',born:1974,relatedMovies:['m14']},
+                {id:'a22',name:'Heath Ledger',bio:'American actor, posthumously won an Oscar for his role as the Joker.',born:1979,relatedMovies:['m14']},
+                {id:'a1',name:'John Travolta',bio:'An American actor and singer, known for his roles in the 70s and 90s.',born:1954,relatedMovies:['m1']},
+                {id:'a2',name:'Uma Thurma',bio:'Known for her roles in action and drama films, often collaborating with Tarantino.',born:1970,relatedMovies:['m1','m11']},
+                {id:'a3',name:'Samuel L. Jackson',bio:'A highly prolific actor known for his distinct voice and intensity.',born:1948,relatedMovies:['m1','m9']},
+                {id:'a5',name:'Joseph Gordon-Levitt',bio:'Versatile American actor who began his career as a child star.',born:1981,relatedMovies:['m2']},
+                {id:'a6',name:'Jim Carrey',bio:'Known for his highly energetic slapstick performance and dramatic roles.',born:1962,relatedMovies:['m3']},
+                {id:'a7',name:'Kate Winslet',bio:'English actress, noted for her work in period dramas.',born:1975,relatedMovies:['m3']},
+                {id:'a8',name:'Amy Adam',bio:'Known for her versatile roles across drama and comedy.',born:1974,relatedMovies:['m4','m12']},
+                {id:'a9',name:'Jeremy Renner',bio:'Known for action roles and being part of the Marvel Cinematic Universe.',born:1971,relatedMovies:['m4','m9']},
+                {id:'a10',name:'Timothee Chalamet',bio:'One of the leading young actors of his generation, known for dramatic roles.',born:1995,relatedMovies:['m5','m6']},
+                {id:'a12',name:'Saoirse Ronan',bio:'Irish-American actress, noted for her work in historical and coming-of-age films.',born:1994,relatedMovies:['m6']},
+                {id:'a13',name:'Ralph Fiennes',bio:'Englsh actor known for his distinguished stage and screen performances.',born:1962,relatedMovies:['m7']},
+                {id:'a14',name:'Tony REvolori',bio:'American actor who broke out in Wes Anderson\'s filmography.',born:1996,relatedMovies:['m7']},
+                {id:'a15',name:'Song Kang-ho',bio:'Highly acclaimed South Korean actor.',born:1967,relatedMovies:['m8']},
+                {id:'a16',name:'Choi Woo-shik',bio:'A rising star in Korean cinema, known internationally for parasite.',born:1990,relatedMovies:['m8']},
+                {id:'a17',name:'Russell Crowe',bio:'Oscar-winning New Zealand actor forintense roles.',born:1964,relatedMovies:['m10']},
+                {id:'a18',name:'Joaquin Phoenix',bio:'Academy Award-winning American actor known for complex characters.',born:1974,relatedMovies:['m10']},
+                {id:'a19',name:'Daniel Kaluuya',bio:'British actor who rose to fame through his collaboration with  Jordan Peele.',born:1989,relatedMovies:['m12','m13']},
+                {id:'a20',name:'Keke Palmer',bio:'American actress and singer known for her versatility in film and TV.',born:1993,relatedMovies:['m13']},
+                /*      {id:'a',name:'',bio:'',born:,relatedMovies:['m']},      */
+            ],
+            series:[
+                {id:'s9',title:'Game of Thrones',director:'David Benioff, D.B. Weiss',summary:'Nine noble families fight for control of the Seven Kingdoms while an ancient threat awakens beyond the Wall.',streaming:'Max',year:2011},
+                {id:'s4',title:'Money Heist',director:'Alex de la Iglesia',summary:'A mastermind leads a group of robbers in an ambitious heist on the Royal Mint of Spain.',streaming:'Netflix',year:2017},
+                {id:'s5',title:'Sherlock Holmes',director:'Mark Gatiss, Steven Moffat',summary:'A modern adaptation of Arthur Conan Doyle\'s detective stories following Sherlock Holmes and Dr. Watson solving crimes in contemporary London.',streaming:'BBC iplayer,Netflix',year:2010},
+                {id:'s6',title:'Alice in borderland',director:'Shinsuke Sato',summary:'Arisu finds himself in a deadly game world where he and other players must complete dangerous challenges to survive.',streaming:'Netflix',year:2020},
+                {id:'s7',title:'3 Body Problem',director:'D.B. Weiss, David Benioff',summary:'Scientists and intellectuals are drawn into humanity\'s first contact with an alien civilization from the trisolaran system.',streaming:'Netflix',year:2024},
+                {id:'s8',title:'Loki',director:'Kate Herron, Justin Benson, Aaron Moorhead',summary:'The God of Mischief Loki is arrested by a time-traveling authority and forced to navigate the multiverse to fix broken timelines.',streaming:'Disney+',year:2021},
+                {id:'s1',title:'The Sopranos',director:'David Chase',summary:'New Jersey mob boss Tony Soprano deals with personal and professional issues.',streaming:'Max',year:1999},
+                {id:'s2',title:'Breaking Bad',director:'Vince Gilligan',summary:'A high school teacher turns to making and selling methamphetamine.',streaming:'Netflix',year:2008},
+                {id:'s3',title:'The Queen\'s Gambit',director:'Scott Frank',summary:'Orphaned chess prodigy Beth Harmon battles addiction on her quest to become the greatest chess player in the world.', streaming:'Netflix',year:2020}
+                /*      {id:'s',title:'',director:'',summary:'',streaming:'',year:},      */
             ]
+        };
+
+        const sessionPosters={};
+
+        const placeholderPosters={
+            'm1': 'https://placehold.co/120x180/dc2626/ffffff?text=Pulp',
+            'm2': "inception.jpeg",
+            'm3': 'https://placehold.co/120x180/7e22ce/ffffff?text=Eternal',
+            'm4': 'https://placehold.co/120x180/06b6d4/ffffff?text=Arrival',
+            'm5': "dune.jpeg",
+            'm6': 'https://placehold.co/120x180/000000/ffffff?text=Little',
+            'm7': 'https://placehold.co/120x180/000000/ffffff?text=The Grand Budapest Hotel',
+            'm8': 'https://placehold.co/120x180/000000/ffffff?text=Parasite',
+            'm9': 'Avengers_Endgame_poster.jpg',
+            'm10': 'Gladiator.jpeg',
+            'm11': 'Alien.jpeg',
+            'm12': 'https://placehold.co/120x180/000000/ffffff?text=GET+OUT',
+            'm13': 'https://placehold.co/120x180/000000/ffffff?text=NOPE',
+            'm14': 'https://placehold.co/120x180/374151/ffffff?text=TDK'
+        };
+
+        const contentInjector = document.getElementById('content-injector');
+        const contentArea = document.getElementById('content-area');
+
+        function navigateTo(view, dataType, id){
+            contentArea.style.opacity=0;
+            setTimeout(()=>{
+                switch(view){
+                    case 'main':
+                        renderMainPage();
+                        break;
+                    case 'list':
+                        renderListPage(dataType, cineData[dataType]);
+                        break;
+                    case 'movie':
+                        renderMoviePage(id);
+                        break;
+                    case 'director':
+                        renderDirectorPage(id);
+                        break;
+                    case 'actor':
+                        renderActorPage(id);
+                        break;
+                    case 'series':
+                        const seriesItem = cineData.series.find(s => s.id === id);
+                        if (id && seriesItem) {
+                            renderSeriesPage(id);
+                        } else {
+                            renderListPage('series', cineData.series);
+                        }
+                        break;
+                    case 'poster_management':
+                        renderPosterManagementPage();
+                        break;
+                    default:
+                        renderMainPage();
+                }
+                contentArea.style.opacity=1;
+            }, 300);
         }
+
+        function getRandomMovies(count=5){
+            const allMovies=cineData.movies;
+            const shuffle=[...allMovies].sort(()=>0.5-Math.random());
+            return shuffle.slice(0,count);
+        }
+
+        function renderPosterBanner(){
+            const banner= document.getElementById('poster-banner');
+            if (!banner) return;
+            const randomMovies=getRandomMovies(14);
+            banner.innerHTML = randomMovies.map(movie => {
+                const placeholderText=movie.title.replace(/ /g,'%20').substring(0,10);
+                const imageUrl=sessionPosters[movie.id] || placeholderPosters[movie.id] || `https://placehold.co/120x180/2a2a2a/f87171?text=${placeholderText}`;
+                return `
+                    <div class="poster-item"
+                         title="${movie.title}(${movie.year})"
+                         onclick="navigateTo('movie',null,'${movie.id}')">
+                        <img src="${imageUrl}"
+                             alt="Poster for ${movie.title}"
+                             onerror="this.style.backgroundColor='#dc2626';this.style.color='white';this.alt='${movie.title}'">
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function handleFileUpload(event,movieId){
+            const file=event.target.files[0];
+            if(!file)return;
+            if (!file.type.startsWith('image/')) {
+                console.error("Please select an image file.");
+                event.target.value='';// thsi reset file input
+                return;
+            }
+            //after uploading new file thid will happen
+            const reader=new FileReader();
+            reader.onload=(e)=>{
+                //e.target.result is the base64 data url
+                sessionPosters[movieId]=e.target.result;
+                renderPosterBanner();
+                renderPosterManagementPage();
+                console.log(`Poster for ${movieId} loaded successfully.`);
+            };
+            reader.readAsDataURL(file);
+        }
+        //poster upload code
+        function renderPosterManagementPage(){
+            contentInjector.innerHTML = `
+                <h2 style="font-size:2.25rem; font-weight:700; margin-bottom:0.5rem; color:#f87171;">Manage Local Posters</h2>
+                <p style="color:#9ca3af; margin-bottom:2rem;">Select a movie below to upload an image file from your PC. This image will only be visible in this browser session.</p>
+                <div class="list-grid" id="poster-management-container">
+                    ${cineData.movies.map(movie => {
+                        const placeholderText = movie.title.replace(/ /g, '%20').substring(0, 10);
+                        const posterSrc=sessionPosters[movie.id] || placeholderPosters[movie.id] || `https://placehold.co/120x180/2a2a2a/f87171?text=${placeholderText}`;
+                        return `
+                            <div class="poster-upload-card">
+                                <h4 style="font-size:1.125rem; font-weight:600; color:#fff;margin-bottom:0.5rem;">${movie.title}</h4>
+
+                                <img src="${posterSrc}"
+                                     alt="Current poster for ${movie.title}"
+                                     style="width:8rem; height: 12rem; object-fit:cover; border-radius:0.5rem; border: 2px solid #ef4444; margin-bottom: 0.5rem;">
+                                
+                                <label for="file-upload-${movie.id}"
+                                       class="btn-primary"
+                                       style="display: block; text-align: center; width: 100%; font-size:0.875rem;">
+                                    Upload New Poster
+                                </label>
+                                <input type="file"
+                                       id="file-upload-${movie.id}"
+                                       data-movie-id="${movie.id}"
+                                       accept="image/*"
+                                       style="display: none;">
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            `;
+
+            const inputs=document.querySelectorAll('input[type="file"]');
+            inputs.forEach(input => {
+                input.addEventListener('change',(e) => {
+                    const movieId=e.target.dataset.movieId;
+                    handleFileUpload(e,movieId);
+                });
+            });
+        }
+
+        function renderItems(dataType,filteredItems){
+            const listContainer = document.getElementById('list-container');
+            if(!listContainer)return;
+            listContainer.innerHTML=filteredItems.map(item=>`
+                <div data-id="${item.id}"
+                     class="list-card">
+                    <h3 style="font-size:1.25rem; font-weight: 600; color: #fff;">${item.title || item.name}</h3>
+                    <p style="font-size:0.875rem; color:#9ca3af;">${item.year ? item.year :item.born ? 'Born: '+ item.born:''}</p>
+                </div>
+            `).join('');
+
+            const itemDivs=listContainer.querySelectorAll('div[data-id]');
+            itemDivs.forEach(itemDiv => {
+                itemDiv.addEventListener('click',() => {
+                    const id=itemDiv.dataset.id;
+                    let viewType = dataType.slice(0, -1);
+                    if(viewType === 'serie') viewType = 'series';
+                    navigateTo(viewType, null, id);
+                });
+            });
+        }
+
+        function filterList(dataType, items, searchTerm){
+            const term=searchTerm.toLowerCase().trim();
+
+            const filtered=items.filter(item => {
+                const searchableText=item.title || item.name;
+                return searchableText && searchableText.toLowerCase().includes(term);
+            });
+            renderItems(dataType,filtered);
+        }
+
+        function renderMainPage(){
+            contentInjector.innerHTML=`
+                <div class="welcome-box">
+                    <h2 style="font-size:3rem; font-weight:900; color:#fff; margin-bottom:1rem;">Welcome, Cinephile.</h2>
+                    <p style="font-size:1.25rem; color:#9ca3af; max-width:40rem; margin-bottom:2rem;">
+                        Dive into the interconnnected web of cinema. Use the **Cinevalt** sidebar to explore directors, actors, and their masterpieces. Use the **Manage POster** link to upload your own local movie posters!
+                    </p>
+                    <div style="display:flex; gap:1rem;">
+                        <button onclick="navigateTo('list','movies')" class="btn-primary">
+                            Browse Movies
+                        </button>
+                        <button onclick="navigateTo('list','directors')" class="btn-secondary-back" style="margin-top:0;">
+                            Find Directors
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderListPage(dataType,items){
+            const title=`All ${dataType.charAt(0).toUpperCase()+dataType.slice(1)}`;
+            contentInjector.innerHTML=`
+                <h2 style="font-size:2.25rem; font-weight:700; margin-bottom:2rem; color:#f87171;">${title}</h2>
+
+                <div class="search-container">
+                    <input type="text" id="search-input" class="search-input" placeholder="Filter by name or title...">
+                </div>
+
+                <div class="list-grid" id="list-container">
+                    </div>
+            `;
+            renderItems(dataType, items);
+            const searchInput=document.getElementById('search-input');
+            if(searchInput){
+                searchInput.addEventListener('input', (e) => {
+                    filterList(dataType,items,e.target.value);
+                });
+            }
+        }
+
+        function renderMoviePage(id){
+            const movie=cineData.movies.find(m=>m.id ===id);
+            if (!movie)return contentInjector.innerHTML=`<p style="color: #ef4444;">Movie not found.</p>`;
+            const director = cineData.directors.find(d => d.id === movie.directorId);
+            const cast=movie.actors.map(aid=>cineData.actors.find(a=>a.id ===aid)).filter(a=>a);
+            contentInjector.innerHTML = `
+                <div class="detail-card">
+                    <h2 style="font-size:3rem; font-weight:800; margin-bottom:0.5rem; color:#ef4444;">${movie.title}</h2>
+                    <p style="font-size:1.25rem; color:#9ca3af; margin-bottom:1.5rem;">${movie.year}</p>
+                    <div style=" margin-bottom:1.5rem; padding:1rem; background-color:#111827; border-radius:0.5rem;">
+                        <span style="color:#f87171; font-weight:600;">Director:</span>
+                        <a href="#" onclick="navigateTo('director',null,'${director.id}')"
+                            style="color:#fff; font-weight:500; margin-left:0.5rem; text-decoration:underline; transition:color 0.2s;">
+                            ${director.name}
+                        </a>
+                    </div>
+
+                    <div style="margin-bottom:2rem;">
+                        <h3 style="font-size:1.5rem; font-weight:600; color:#fff; margin-bottom:0.5rem;">Plot Summary</h3>
+                        <p style="color:#d1d5db; line-height:1.6;">${movie.summary}</p>
+                        <p style="font-size:1.125rem; color:#f87171; font-weight:500; margin-top:1rem;">Available on:<span style="color:#fff;font-weight:400;">${movie.streaming}</span></p>
+                    </div>
+                    
+                    <h3 style="font-size:1.5rem; font-weight:600; color:#fff; margin-bottom:1rem; border-bottom:1px solid #374151; padding-bottom:0.5rem;">Starring Cast</h3>
+                    <div style="display:flex; flex-wrap:wrap; gap:1rem;">
+                        ${cast.map(actor=>`
+                            <a href="#" onclick="navigateTo('actor',null,'${actor.id}')"
+                                style="display:inline-block; padding:0.5rem 1rem; background-color:#374151; color:#fff; border-radius:9999px; transition:background-color 0.2s; font-weight:500;">
+                                ${actor.name}
+                            </a>
+                        `).join('')}
+                    </div>
+                </div>
+                <button onclick="navigateTo('list','movies')" class="btn-secondary-back">
+                    ← Back to All Movies
+                </button>
+            `;
+        }
+
+        function renderDirectorPage(id){
+            const director=cineData.directors.find(d=>d.id===id);
+            if (!director) return contentInjector.innerHTML=`<p style="color:#ef4444;">Director not found.</p>`;
+            const relatedMovies=director.relatedMovies.map(mid=> cineData.movies.find(m=>m.id===mid)).filter(m=>m);
+            contentInjector.innerHTML = `
+                <div class="detail-card">
+                    <h2 style="font-size:3rem; font-weight:800; margin-bottom:0.5rem; color: #ef4444;">${director.name}</h2>
+                    <p style="font-size:1.25rem; color:#9ca3af; margin-bottom:1.5rem;">Born: ${director.born}</p>
+
+                    <div style="margin-bottom:2rem;">
+                        <h3 style="font-size:1.5rem; font-weight:600 ; color:#fff; margin-bottom:0.5rem;">Biography</h3>
+                        <p style="color:#d1d5db; line-height:1.6;">${director.bio}</p>
+                    </div>
+
+                    <h3 style="font-size:1.5rem; font-weight:600; color:#fff; margin-bottom:1rem; border-bottom:1px solid #374151; padding-bottom:0.5rem;">Key Filmography</h3>
+                    <div style="display:flex ;flex-direction:column;gap:0.5rem;">
+                        ${relatedMovies.map(movie => `
+                            <div style="display:flex; justify-content: space-between; align-items:center; padding:0.75rem; background-color:#111827; border-radius:0.25rem;">
+                                <a href="#" onclick="navigateTo('movie',null,'${movie.id}')"
+                                    style="font-size:1.125rem; color:#fff; font-weight:500; transition: color 0.2s;">
+                                    ${movie.title} (${movie.year})
+                                </a>
+                                <span style="font-size:0.875rem; color: #9ca3af;">Movie</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+                <button onclick="navigateTo('list','directors')" class="btn-secondary-back">
+                    ← Back to All Directors
+                </button>
+            `;
+        }
+
+        function renderActorPage(id){
+            const actor = cineData.actors.find(a=>a.id===id);
+            if (!actor) return contentInjector.innerHTML=`<p style="color:#ef4444;">Actor not found.</p>`;
+            const relatedMovies=actor.relatedMovies.map(mid=>cineData.movies.find(m=>m.id===mid)).filter(m=>m);
+            contentInjector.innerHTML=`
+                <div class="detail-card">
+                    <h2 style="font-size:3rem; font-weight:800; margin-bottom:0.5rem ; color: #ef4444;">${actor.name}</h2>
+                    <p style="font-size:1.25rem; color: #9ca3af; margin-bottom:1.5rem;">Born: ${actor.born}</p>
+
+                    <div style="margin-bottom:2rem;">
+                        <h3 style="font-size:1.5rem; font-weight:600; color:#fff; margin-bottom:0.5rem;">Biography</h3>
+                        <p style="color:#d1d5db; line-height:1.6;">${actor.bio}</p>
+                    </div>
+
+                    <h3 style="font-size: 1.5rem; font-weight:600; color:#fff; margin-bottom:1rem; border-bottom:1px solid #374151; padding-bottom:0.5rem;">Key Filmography</h3>
+                    <div style="display:flex; flex-direction:column; gap:0.5rem;">
+                        ${relatedMovies.map(movie=>` 
+                            <div style="display:flex; justify-content:space-between; align-items:center; padding:0.75rem; background-color:#111827;border-radius:0.25rem;">
+                                <a href="#" onclick="navigateTo('movie',null,'${movie.id}')"
+                                    style="font-size:1.125rem;color:#fff;font-weight:500;transition: color 0.2s;">
+                                    ${movie.title}(${movie.year})
+                                </a>
+                                <span style="font-size:0.875rem;color:#9ca3af;">Movie</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+                <button onclick="navigateTo('list','actors')" class="btn-secondary-back">
+                    ← Back to All Actors
+                </button>
+            `;
+        }
+
+        function renderSeriesPage(id){
+            const series = cineData.series.find(s => s.id === id);
+            if (!series) return contentInjector.innerHTML = `<p style="color:#ef4444;">Series not found.</p>`;
+            contentInjector.innerHTML = `
+                <div class="detail-card">
+                    <h2 style="font-size:3rem; font-weight:800; margin-bottom:0.5rem; color:#ef4444;">${series.title}</h2>
+                    <p style="font-size:1.25rem;color:#9ca3af; margin-bottom:1.5rem;">Frist Aired: ${series.year}</p>
+                    <div style="margin-bottom:2rem; display:flex; flex-direction:column;gap:0.5rem;">
+                        <p style="font-size:1.125rem; color:#f87171; font-weight:500;">Creator/Showrunner: <span style="color:#fff;">${series.director}</span></p>
+                        <p style="font-size:1.125rem; color:#f87171; font-weight:500;">Available on: <span style="color:#fff;">${series.streaming}</span></p>
+                    </div>
+                    <h3 style="font-size:1.5rem; font-weight:600; color:#fff; margin-bottom:0.5rem;">Synopsis</h3>
+                    <p style="color:#d1d5db; line-height:1.6;">${series.summary}</p>
+                </div>
+                <button onclick="navigateTo('list', 'series')" class="btn-secondary-back">
+                    ← Back to All Series
+                </button>
+            `;
+        }
+
+        function initApp(){
+            renderPosterBanner();
+            const sidebarLinks = document.querySelectorAll('.sidebar-link');
+            sidebarLinks.forEach(link=>{
+                if (link.dataset.type){
+                    link.addEventListener('click',(e)=>{
+                        e.preventDefault();
+                        navigateTo('list',link.dataset.type);
+                    });
+                }
+            });
+            navigateTo('main');
+        }
+        document.addEventListener('DOMContentLoaded',initApp);
     </script>
 </body>
 </html>
